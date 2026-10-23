@@ -838,7 +838,7 @@ function App() {
         />
         <Text style={styles.mealsCardDetail}>
           {selectedDayLogs.length}{" "}
-          {selectedDayLogs.length === 1 ? "entry" : "entries"} logged
+          {selectedDayLogs.length === 1 ? "entry" : "entries"} 
         </Text>
         {MEALS.map((meal) => {
           const logs = selectedDayLogs.filter((log) => log.meal_type === meal);
@@ -944,7 +944,7 @@ function App() {
             <Text style={styles.calorieUnit}>kcal</Text>
           </View>
           <Text style={styles.heroCaption}>
-            from {todayLogs.length} logged{" "}
+            from {todayLogs.length}{" "}
             {todayLogs.length === 1 ? "item" : "items"}
           </Text>
           <View style={styles.macroRow}>
@@ -1569,7 +1569,7 @@ function App() {
     return (
       <View style={styles.splashScreen}>
         <View style={styles.splashMark}>
-          <Text style={styles.splashMarkText}>F</Text>
+          <Text style={styles.splashMarkText}>M</Text>
         </View>
         <Text style={styles.splashTitle}>Mindful Bite</Text>
         <Text style={styles.splashSubtitle}>

@@ -57,6 +57,35 @@ An Android APK can only be installed on Android. iPhones require a separately bu
 
 The `preview` profile creates an Android APK and an internally distributed iOS build. EAS Build runs remotely, so a local Android SDK/Xcode installation is not needed. See [`App/eas.json`](App/eas.json) for build profiles. The application identifiers are `com.mindfulbite.app` on both platforms.
 
+## Refresh Mindful Bite with AltStore Classic (Windows)
+
+AltStore-sideloaded apps signed with a free Apple ID expire after seven days unless refreshed. You do **not** need to rebuild the IPA or push to GitHub every week; AltStore refreshes the installed app. Refresh before the expiration date so Mindful Bite stays launchable.
+
+### Set up AltServer
+
+1. Install the latest iTunes and iCloud directly from Apple, not from the Microsoft Store, as described in the [AltStore Windows setup guide](https://faq.altstore.io/altstore-classic/how-to-install-altstore-windows).
+2. Download and install AltServer for Windows using that guide.
+3. Launch AltServer as administrator and allow it on private networks if Windows asks.
+4. Connect the iPhone to the PC by USB, unlock the phone, and accept **Trust This Computer** if prompted. Alternatively, configure Wi-Fi sync in iTunes and keep both devices on the same Wi-Fi network.
+5. In AltServer, choose **Install AltStore** and select the iPhone. Sign in with the Apple ID when prompted. These credentials are used by AltServer to communicate with Apple; do not share them with anyone.
+6. On iPhone, trust the developer profile if iOS prompts you, then open AltStore and sign in with the same Apple ID used for sideloading.
+
+### Install the IPA
+
+1. Download the `Mindful-Bite-AltStore.ipa` artifact from the completed iOS IPA workflow run.
+2. Transfer the IPA to the iPhone (for example, save it in the Files app).
+3. Open AltStore, go to **My Apps**, tap **+**, and select the IPA to install it.
+4. Keep the iPhone and the PC running AltServer on the same Wi-Fi network, or connect the iPhone over USB, so AltStore can refresh the app.
+
+### Refresh before the seven-day expiry
+
+1. Open AltServer on the PC and make sure it is running in the system tray. Keep the PC awake and connect the iPhone via USB or the same Wi-Fi network.
+2. Open AltStore on the iPhone and go to **My Apps**.
+3. Pull down to refresh if needed, then tap **Refresh All** (or the refresh control beside Mindful Bite).
+4. Wait for the refresh to finish and confirm the app shows a renewed expiration period. AltStore can also attempt background refreshes when AltServer is available; open AltStore and refresh manually if the expiration is getting close.
+
+The free Apple ID signing limit is imposed by Apple. AltStore reports a seven-day app expiration and allows up to three sideloaded apps at once. See the official [AltStore getting-started guide](https://faq.altstore.io/altstore-classic/your-altstore) and [AltServer guide](https://faq.altstore.io/altstore-classic/altserver) for current details and troubleshooting.
+
 ## 3. Design System & Global Color Palette
 
 The UI uses the four-color palette supplied in `App/assets`: violet `#937DC2`, mauve `#C689C6`, pink `#FFABE1`, and pale pink `#FFE6F7`. Light mode is the default; tap the theme icon on the home screen to switch between light and dark modes. The selection is saved locally and transitions with a brief crossfade.

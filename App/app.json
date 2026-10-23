@@ -8,7 +8,10 @@
     "userInterfaceStyle": "light",
     "ios": {
       "bundleIdentifier": "com.mindfulbite.app",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.mindfulbite.app",
@@ -22,6 +25,14 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["expo-sqlite", "expo-status-bar"]
+    "plugins": [
+      "expo-sqlite",
+      "expo-status-bar"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "03d6b955-5c83-4276-8c5c-e6510539bd6d"
+      }
+    }
   }
 }
