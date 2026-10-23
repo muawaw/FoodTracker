@@ -1,0 +1,94 @@
+name: Build iOS IPA for AltStore
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-unsigned-ipa:
+    runs-on: macos-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: App/package-lock.json
+
+      - name: Install JavaScript dependencies
+        working-directory: App
+        run: npm ci
+
+      - name: Generate the iOS project
+        working-directory: App
+        run: npx expo prebuild --platform ios --no-install
+
+      - name: Install CocoaPods dependencies
+        working-directory: App/ios
+        run: pod install
+
+      - name: Build unsigned iPhone app
+        working-directory: App
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          workspace="$(find ios -maxdepth 1 -name '*.xcworkspace' -print -quit)"
+          if [[ -z "$workspace" ]]; then
+            echo "Expo prebuild did not create an Xcode workspace." >&2
+            exit 1
+          fi
+
+          scheme="$(xcodebuild -list -json -workspace "$workspace" | node -e '
+            let input = "";
+            process.stdin.on("data", chunk => input += chunk);
+            process.stdin.on("end", () => {
+              const config = JSON.parse(input);
+              const schemes = config.workspace?.schemes ?? config.project?.schemes ?? [];
+              const appScheme = schemes.find(name => name.toLowerCase() === "mindfulbite")
+                ?? schemes.find(name => !name.toLowerCase().includes("test"));
+              if (!appScheme) {
+                console.error("Could not find the iOS application scheme.");
+                process.exit(1);
+              }
+              process.stdout.write(appScheme);
+            });
+          ')"
+
+          derived_data="$RUNNER_TEMP/mindful-bite-derived-data"
+          xcodebuild \
+            -workspace "$workspace" \
+            -scheme "$scheme" \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath "$derived_data" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY='' \
+            build
+
+          app_path="$(find "$derived_data/Build/Products/Release-iphoneos" \
+            -maxdepth 1 -name '*.app' -print -quit)"
+          if [[ -z "$app_path" ]]; then
+            echo "Xcode completed without producing an iPhone app bundle." >&2
+            exit 1
+          fi
+
+          ipa_dir="$RUNNER_TEMP/mindful-bite-ipa"
+          mkdir -p "$ipa_dir/Payload"
+          ditto "$app_path" "$ipa_dir/Payload/MindfulBite.app"
+          (cd "$ipa_dir" && zip -qry "$GITHUB_WORKSPACE/Mindful-Bite-AltStore.ipa" Payload)
+
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mindful-Bite-AltStore-IPA
+          path: Mindful-Bite-AltStore.ipa
+          if-no-files-found: error
+          retention-days: 7
